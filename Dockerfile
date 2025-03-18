@@ -35,4 +35,4 @@ RUN pnpm run build
 # Port pour l'application
 EXPOSE 3007
 
-CMD ["pnpm", "start"]
+CMD ["node", ".next/standalone/server.js"]

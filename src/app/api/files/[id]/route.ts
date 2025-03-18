@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { readFile, unlink, readdir } from 'fs/promises';
-import { existsSync } from 'fs';
+import { existsSync, createReadStream } from 'fs';
 import path from 'path';
 
 // Chemin vers le répertoire de stockage des fichiers
@@ -10,22 +10,33 @@ const UPLOAD_DIR = process.env.NODE_ENV === 'production'
 
 // Fonction pour trouver un fichier par son ID
 async function findFileById(id: string) {
-  if (!existsSync(UPLOAD_DIR)) {
-    return null;
-  }
+  try {
+    if (!existsSync(UPLOAD_DIR)) {
+      console.log('Le répertoire des uploads n\'existe pas:', UPLOAD_DIR);
+      return null;
+    }
 
-  const files = await readdir(UPLOAD_DIR);
-  const targetFile = files.find(filename => filename.startsWith(`${id}-`));
-  
-  if (!targetFile) {
+    const files = await readdir(UPLOAD_DIR);
+    console.log('Fichiers disponibles:', files);
+    
+    const targetFile = files.find(filename => filename.startsWith(`${id}-`));
+    
+    console.log('Recherche de fichier commençant par:', `${id}-`);
+    console.log('Fichier trouvé:', targetFile);
+    
+    if (!targetFile) {
+      return null;
+    }
+    
+    return {
+      id,
+      filename: targetFile,
+      path: path.join(UPLOAD_DIR, targetFile)
+    };
+  } catch (error) {
+    console.error('Erreur dans findFileById:', error);
     return null;
   }
-  
-  return {
-    id,
-    filename: targetFile,
-    path: path.join(UPLOAD_DIR, targetFile)
-  };
 }
 
 export async function GET(
@@ -34,7 +45,10 @@ export async function GET(
 ) {
   try {
     const id = params.id;
+    console.log('ID demandé:', id);
+    
     const fileInfo = await findFileById(id);
+    console.log('Informations du fichier:', fileInfo);
     
     if (!fileInfo) {
       return NextResponse.json(
@@ -43,47 +57,76 @@ export async function GET(
       );
     }
     
+    // Vérifier que le fichier existe
+    if (!existsSync(fileInfo.path)) {
+      console.log('Le chemin du fichier n\'existe pas:', fileInfo.path);
+      return NextResponse.json(
+        { message: 'Fichier introuvable sur le disque' },
+        { status: 404 }
+      );
+    }
+    
+    // Lire le fichier en mémoire
     const fileBuffer = await readFile(fileInfo.path);
+    console.log('Taille du fichier:', fileBuffer.length, 'octets');
     
-    // Déterminer le type MIME basé sur l'extension du fichier
-    const fileExtension = path.extname(fileInfo.filename).toLowerCase();
-    const mimeTypes: Record<string, string> = {
-      '.txt': 'text/plain',
-      '.pdf': 'application/pdf',
-      '.doc': 'application/msword',
-      '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      '.xls': 'application/vnd.ms-excel',
-      '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      '.png': 'image/png',
-      '.jpg': 'image/jpeg',
-      '.jpeg': 'image/jpeg',
-      '.gif': 'image/gif',
-      '.svg': 'image/svg+xml',
-      '.mp4': 'video/mp4',
-      '.mp3': 'audio/mpeg',
-      '.zip': 'application/zip',
-      '.json': 'application/json',
-      '.csv': 'text/csv',
-    };
+    // Déterminer le type MIME basé sur le nom du fichier
+    let contentType = 'application/octet-stream';
     
-    const contentType = mimeTypes[fileExtension] || 'application/octet-stream';
-    
-    // Extraire le nom original du fichier (sans l'ID)
+    // Essayer de détecter le type MIME à partir du nom original
     const originalFilename = fileInfo.filename.substring(id.length + 1);
+    console.log('Nom original:', originalFilename);
+    
+    // Amélioration de la détection du type MIME
+    if (originalFilename.toLowerCase().includes('pdf')) {
+      contentType = 'application/pdf';
+    } else if (originalFilename.toLowerCase().includes('doc')) {
+      contentType = 'application/msword';
+    } else if (originalFilename.toLowerCase().includes('jpg') || originalFilename.toLowerCase().includes('jpeg')) {
+      contentType = 'image/jpeg';
+    } else if (originalFilename.toLowerCase().includes('png')) {
+      contentType = 'image/png';
+    } else if (originalFilename.toLowerCase().includes('zip')) {
+      contentType = 'application/zip';
+    }
+    
+    // Pour le débogage - Forcer temporairement le type PDF
+    if (originalFilename.includes('cours_progweb_2_jquery_pdf')) {
+      contentType = 'application/pdf';
+    }
+    
+    console.log('Type de contenu détecté:', contentType);
+    
+    // Construire le nom de fichier pour le téléchargement
+    let downloadFilename = originalFilename;
+    
+    // Ajouter l'extension si elle n'existe pas
+    if (contentType === 'application/pdf' && !downloadFilename.endsWith('.pdf')) {
+      downloadFilename += '.pdf';
+    } else if (contentType === 'application/msword' && !downloadFilename.endsWith('.doc')) {
+      downloadFilename += '.doc';
+    } else if (contentType === 'image/jpeg' && !downloadFilename.endsWith('.jpg') && !downloadFilename.endsWith('.jpeg')) {
+      downloadFilename += '.jpg';
+    }
+    
+    console.log('Nom de fichier pour téléchargement:', downloadFilename);
     
     // Construire la réponse avec le contenu du fichier
     const response = new NextResponse(fileBuffer, {
       status: 200,
       headers: {
         'Content-Type': contentType,
-        'Content-Disposition': `attachment; filename="${originalFilename}"`,
+        'Content-Disposition': `attachment; filename="${downloadFilename}"`,
+        'Content-Length': fileBuffer.length.toString(),
+        'Cache-Control': 'no-cache',
+        'X-Content-Type-Options': 'nosniff'
       }
     });
     
     return response;
     
   } catch (error) {
-    console.error('Erreur lors de la récupération du fichier:', error);
+    console.error('Erreur complète lors de la récupération du fichier:', error);
     return NextResponse.json(
       { message: 'Erreur lors de la récupération du fichier' },
       { status: 500 }

@@ -42,13 +42,27 @@ export async function POST(request: NextRequest) {
     // Obtenir l'extension du fichier
     const originalFilename = file.name;
     const fileExtension = path.extname(originalFilename);
+    const fileNameWithoutExt = path.basename(originalFilename, fileExtension);
     
-    // Générer un nom de fichier unique
+    console.log('Nom original:', originalFilename);
+    console.log('Extension:', fileExtension);
+    console.log('Nom sans extension:', fileNameWithoutExt);
+    
+    // Générer un nom de fichier unique qui préserve l'extension
     const fileId = generateId();
-    const sanitizedFilename = originalFilename
+    
+    // Nettoyer le nom de fichier mais conserver l'extension
+    const sanitizedFilename = fileNameWithoutExt
       .replace(/[^a-zA-Z0-9]/g, '_')
       .toLowerCase();
-    const uniqueFilename = `${fileId}-${sanitizedFilename}`;
+    
+    // S'assurer que l'extension est présente
+    const finalExtension = fileExtension || determineExtensionFromContentType(file.type);
+    
+    // Créer le nom de fichier final avec l'extension préservée
+    const uniqueFilename = `${fileId}-${sanitizedFilename}${finalExtension}`;
+    
+    console.log('Nom de fichier final:', uniqueFilename);
     
     const buffer = Buffer.from(await file.arrayBuffer());
     const filePath = path.join(UPLOAD_DIR, uniqueFilename);
@@ -86,4 +100,19 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+// Fonction pour déterminer l'extension à partir du type MIME
+function determineExtensionFromContentType(contentType: string): string {
+  const mimeToExt: Record<string, string> = {
+    'application/pdf': '.pdf',
+    'application/msword': '.doc',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+    'image/jpeg': '.jpg',
+    'image/png': '.png',
+    'application/zip': '.zip',
+    'text/plain': '.txt',
+  };
+  
+  return mimeToExt[contentType] || '';
 } 
