@@ -15,14 +15,12 @@ COPY package*.json ./
 COPY pnpm-lock.yaml ./
 COPY tsconfig*.json ./
 COPY postcss.config.mjs ./
-COPY tailwind.config.js ./
-COPY next.config.ts ./
-COPY prisma ./prisma/
+COPY next.config.mjs ./
+
 
 # Installation des dépendances
 RUN pnpm install --frozen-lockfile
-RUN pnpm add -D autoprefixer postcss postcss-preset-env tailwindcss date-fns @types/node @types/react @types/react-dom typescript @types/bcryptjs
-RUN pnpm add bcryptjs
+
 
 # Création du répertoire pour stocker les fichiers uploadés
 RUN mkdir -p /app/uploads
@@ -32,7 +30,6 @@ RUN chmod 777 /app/uploads
 COPY . .
 
 # Build
-RUN pnpm prisma generate
 RUN pnpm run build
 
 # Port pour l'application
