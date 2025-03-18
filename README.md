@@ -45,7 +45,9 @@ L'application utilise un système d'authentification simple pour protéger l'acc
 - Nom d'utilisateur : `admin`
 - Mot de passe : `admin123`
 
-Pour modifier les identifiants, modifiez le fichier `src/app/api/auth/login/route.ts`.
+**Important** : En production, vous pouvez changer les identifiants via les variables d'environnement :
+- `AUTH_USERNAME` : pour changer le nom d'utilisateur
+- `AUTH_PASSWORD` : pour changer le mot de passe
 
 ## Déploiement avec Docker
 
@@ -59,7 +61,22 @@ docker-compose up -d --build
 docker-compose down
 ```
 
-L'application sera accessible sur http://localhost:3000
+L'application sera accessible sur http://localhost:3007
+
+### Variables d'environnement Docker
+
+Le fichier docker-compose.yml prend en charge les variables d'environnement suivantes :
+
+```
+NEXT_PUBLIC_APP_URL=https://votre-domaine.fr
+PORT=3007
+AUTH_USERNAME=admin       # Nom d'utilisateur pour l'authentification
+AUTH_PASSWORD=admin123    # Mot de passe pour l'authentification
+```
+
+### Persistance des données
+
+Les fichiers téléchargés sont stockés dans un volume Docker nommé `uploads_data`, monté sur `/app/uploads` dans le conteneur pour assurer la persistance des données entre les redémarrages.
 
 ### Construire manuellement l'image Docker
 
@@ -68,7 +85,7 @@ L'application sera accessible sur http://localhost:3000
 docker build -t depotbde .
 
 # Exécuter le conteneur
-docker run -p 3000:3000 -v depotbde_uploads:/app/uploads depotbde
+docker run -p 3007:3007 -v depotbde_uploads:/app/uploads depotbde
 ```
 
 ## Structure du projet
@@ -97,4 +114,4 @@ En production (avec Docker), les fichiers sont stockés dans un volume Docker mo
 ## Personnalisation
 
 - Vous pouvez modifier les limites de taille de fichier en éditant le fichier `src/app/api/upload/route.ts`.
-- Vous pouvez modifier les identifiants de connexion en éditant le fichier `src/app/api/auth/login/route.ts`.
+- Vous pouvez modifier les identifiants de connexion en configurant les variables d'environnement `AUTH_USERNAME` et `AUTH_PASSWORD` dans docker-compose.yml.

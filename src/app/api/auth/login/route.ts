@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import crypto from 'crypto';
+
+// Récupérer les identifiants depuis les variables d'environnement
+// Avec des valeurs par défaut pour le développement
+const AUTH_USERNAME = process.env.AUTH_USERNAME || 'admin';
+const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'admin123';
 
 // Normalement, ces informations seraient stockées dans une base de données
 // et les mots de passe seraient hachés avec bcrypt ou argon2
-const USERS = {
-  admin: 'admin123', // Ceci est juste un exemple, ne pas utiliser en production !
+const USERS: Record<string, string> = {
+  [AUTH_USERNAME]: AUTH_PASSWORD,
 };
 
 // Génère un token JWT simple (en production, utilisez jose ou jsonwebtoken)
@@ -24,7 +28,7 @@ export async function POST(request: NextRequest) {
     const { username, password } = await request.json();
     
     // Vérifier si l'utilisateur existe et si le mot de passe est correct
-    if (!username || !password || !(username in USERS) || USERS[username as keyof typeof USERS] !== password) {
+    if (!username || !password || !(username in USERS) || USERS[username] !== password) {
       return NextResponse.json(
         { message: 'Nom d\'utilisateur ou mot de passe incorrect' },
         { status: 401 }
