@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readFile, unlink, readdir } from 'fs/promises';
+import { readdir, stat, readFile } from 'fs/promises';
 import { existsSync, createReadStream } from 'fs';
 import path from 'path';
 
@@ -66,18 +66,15 @@ export async function GET(
       );
     }
     
-    // Lire le fichier en mémoire
-    const fileBuffer = await readFile(fileInfo.path);
-    console.log('Taille du fichier:', fileBuffer.length, 'octets');
-    
-    // Déterminer le type MIME basé sur le nom du fichier
-    let contentType = 'application/octet-stream';
+    // Obtenir les stats du fichier (taille)
+    const fileStats = await stat(fileInfo.path);
     
     // Essayer de détecter le type MIME à partir du nom original
     const originalFilename = fileInfo.filename.substring(id.length + 1);
     console.log('Nom original:', originalFilename);
     
     // Amélioration de la détection du type MIME
+    let contentType = 'application/octet-stream';
     if (originalFilename.toLowerCase().includes('pdf')) {
       contentType = 'application/pdf';
     } else if (originalFilename.toLowerCase().includes('doc')) {
@@ -111,19 +108,39 @@ export async function GET(
     
     console.log('Nom de fichier pour téléchargement:', downloadFilename);
     
-    // Construire la réponse avec le contenu du fichier
-    const response = new NextResponse(fileBuffer, {
+    // Approche simplifiée : lire le fichier et l'envoyer
+    // Pour les fichiers volumineux, nous limitons la taille
+    const MAX_SIZE = 50 * 1024 * 1024; // 50MB
+    
+    // Si le fichier est trop volumineux, utilisez une méthode alternative
+    if (fileStats.size > MAX_SIZE) {
+      console.log('Fichier trop volumineux, utilisation d\'une réponse simplifiée');
+      
+      // Renvoyer une réponse simplifiée qui invite au téléchargement
+      return new Response(`Le fichier est trop volumineux pour être diffusé directement. 
+      Veuillez utiliser le bouton de téléchargement.`, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/plain',
+          'Content-Disposition': 'inline'
+        }
+      });
+    }
+    
+    // Lire le fichier en mémoire pour les fichiers de taille raisonnable
+    const fileBuffer = await readFile(fileInfo.path);
+    
+    // Utiliser l'API Response native
+    return new Response(fileBuffer, {
       status: 200,
       headers: {
         'Content-Type': contentType,
         'Content-Disposition': `attachment; filename="${downloadFilename}"`,
-        'Content-Length': fileBuffer.length.toString(),
-        'Cache-Control': 'no-cache',
+        'Content-Length': fileStats.size.toString(),
+        'Cache-Control': 'no-store',
         'X-Content-Type-Options': 'nosniff'
       }
     });
-    
-    return response;
     
   } catch (error) {
     console.error('Erreur complète lors de la récupération du fichier:', error);
@@ -150,7 +167,7 @@ export async function DELETE(
     }
     
     // Supprimer le fichier
-    await unlink(fileInfo.path);
+    await import('fs/promises').then(fs => fs.unlink(fileInfo.path));
     
     // Ici, vous devriez également supprimer les métadonnées de votre base de données
     // Par exemple: await db.files.delete({ where: { id } });
