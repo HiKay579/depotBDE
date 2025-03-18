@@ -4,6 +4,7 @@ services:
   depotbde:
     build: .
     container_name: depotbde
+    restart: always
     ports:
       - "3007:3007"
     networks:
