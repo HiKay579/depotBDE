@@ -1,26 +1,18 @@
 @import "tailwindcss";
 
+/* Ajout de quelques variables pour la cohérence des couleurs */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --primary: #e11d48; /* rose-600 - rouge plus doux et élégant */
+  --primary-light: #f43f5e; /* rose-500 */
+  --primary-dark: #be123c; /* rose-700 */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@keyframes logo-pulse {
+  0% { transform: scale(1) rotate(-3deg); }
+  50% { transform: scale(1.05) rotate(0deg); }
+  100% { transform: scale(1) rotate(-3deg); }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.animated-logo {
+  animation: logo-pulse 4s infinite ease-in-out;
 }

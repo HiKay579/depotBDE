@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-
-// Récupérer les identifiants depuis les variables d'environnement
-// Avec des valeurs par défaut pour le développement
-const AUTH_USERNAME = process.env.AUTH_USERNAME || 'admin';
-const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'admin123';
+import { AUTH_USERNAME, AUTH_PASSWORD } from '@/env';
 
 // Normalement, ces informations seraient stockées dans une base de données
 // et les mots de passe seraient hachés avec bcrypt ou argon2

@@ -21,9 +21,7 @@ services:
       - NODE_ENV=production
       - NEXT_PUBLIC_APP_URL=https://depotbde.hipp-dev.fr
       - PORT=3007
-      # Variables pour l'authentification simplifée
-      - AUTH_USERNAME=admin
-      - AUTH_PASSWORD=admin123
+
 
 networks:
   depotbde-network:

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Image from "next/image";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BDE - Gestionnaire de Fichiers",
-  description: "Gestionnaire de Fichiers pour le BDE",
+  title: "BDE Infocontact - Gestionnaire de Fichiers",
+  description: "Gestionnaire de Fichiers pour le BDE Infocontact",
 };
 
 export default function RootLayout({
