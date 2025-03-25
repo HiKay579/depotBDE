@@ -1,14 +1,14 @@
 version: '3.8'
 
 services:
-  depotbde:
+  bde:
     build: .
-    container_name: depotbde
+    container_name: bde
     restart: always
     ports:
       - "3007:3007"
     networks:
-      - depotbde-network
+      - bde-network
     volumes:
       - uploads_data:/app/uploads
     deploy:
@@ -19,12 +19,12 @@ services:
           memory: 512M
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_APP_URL=https://depotbde.hipp-dev.fr
+      - NEXT_PUBLIC_APP_URL=https://bde.hipp-dev.fr
       - PORT=3007
 
 
 networks:
-  depotbde-network:
+  bde-network:
 
 volumes:
   uploads_data:

@@ -20,10 +20,16 @@ COPY tsconfig*.json ./
 COPY postcss.config.mjs ./
 COPY next.config.mjs ./
 
+# Copier le schéma Prisma pour générer le client
+COPY prisma ./prisma/
+
 # Installation des dépendances
 RUN pnpm install --frozen-lockfile
 
-# Copier le code source
+# Génération du client Prisma AVANT de construire l'application
+RUN npx prisma generate
+
+# Copier le reste du code source
 COPY . .
 
 # Construire l'application
@@ -52,7 +58,9 @@ RUN chmod 777 /app/uploads
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/prisma ./prisma
 
 # Définir les bonnes permissions
 RUN chown -R nextjs:nodejs /app
