@@ -1,10 +1,12 @@
-import dotenv from 'dotenv';
+// Fichier de configuration des variables d'environnement compatible avec Edge Runtime
+// Ne pas utiliser dotenv ici pour assurer la compatibilité
 
-// Charger les variables d'environnement du fichier .env
-dotenv.config();
-
-// Exporter les variables d'environnement pour l'authentification
+// Variables d'authentification
 export const AUTH_USERNAME = process.env.AUTH_USERNAME || 'admin';
-export const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'admin123';
+export const AUTH_PASSWORD = process.env.AUTH_PASSWORD || 'Negro3945'; // Utiliser la valeur de .env
 
-// Vous pouvez ajouter d'autres variables d'environnement ici 
+// Clé pour signer les JWT
+export const JWT_SECRET = process.env.JWT_SECRET || 'clé_secrète_temporaire_pour_le_développement';
+
+// URLs de base
+export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';

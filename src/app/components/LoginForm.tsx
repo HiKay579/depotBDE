@@ -1,14 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function LoginForm() {
+// Composant qui utilise useSearchParams
+function LoginFormContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Récupérer l'URL de redirection si disponible
+  const redirect = searchParams.get('redirect') || '/admin';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,6 +27,8 @@ export default function LoginForm() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
+        // Important : inclure les credentials pour que les cookies soient envoyés
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -29,8 +36,8 @@ export default function LoginForm() {
         throw new Error(data.message || 'Échec de la connexion');
       }
 
-      // Redirection vers la page d'administration après connexion réussie
-      router.push('/admin');
+      // Redirection vers la page demandée ou admin par défaut
+      router.push(redirect);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
@@ -124,5 +131,18 @@ export default function LoginForm() {
         </div>
       </form>
     </div>
+  );
+}
+
+// Composant principal qui enveloppe avec Suspense
+export default function LoginForm() {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center items-center py-8">
+        <div className="animate-spin h-6 w-6 border-2 border-rose-500 border-t-transparent rounded-full"></div>
+      </div>
+    }>
+      <LoginFormContent />
+    </Suspense>
   );
 } 

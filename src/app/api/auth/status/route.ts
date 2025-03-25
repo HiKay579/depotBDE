@@ -1,12 +1,12 @@
+export const runtime = 'nodejs';
+
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { verifyAuth } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
     // Récupérer le token d'authentification depuis les cookies
-    const cookieStore = cookies();
-    const authToken = cookieStore.get('auth_token')?.value;
+    const authToken = request.cookies.get('auth_token')?.value;
 
     if (!authToken) {
       return NextResponse.json({ 
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Vérifier l'authentification
-    const authResult = await verifyAuth(authToken);
+    const authResult = verifyAuth(authToken);
 
     if (!authResult.valid) {
       return NextResponse.json({ 
