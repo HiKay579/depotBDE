@@ -38,6 +38,11 @@ export async function GET() {
     const prizes = await prisma.prize.findMany({
       orderBy: {
         createdAt: 'desc'
+      },
+      where: {
+        quantity: {
+          gt: 0
+        }
       }
     });
 

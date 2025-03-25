@@ -20,7 +20,7 @@ export default function PrizeManager() {
   // États pour le formulaire d'ajout de lot
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState<number>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // États pour la modification
@@ -243,9 +243,9 @@ export default function PrizeManager() {
               Quantité
             </label>
             <input
-              type="number"
+              type="text"
               id="quantity"
-              min="1"
+              placeholder="1"
               value={quantity}
               onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"

@@ -6,10 +6,11 @@ import Image from 'next/image';
 import QRCodeGenerator from '@/app/components/QRCodeGenerator';
 import PrizeManager from '@/app/components/PrizeManager';
 import DrawingManager from '@/app/components/DrawingManager';
+import ParticipantsList from '@/app/components/ParticipantsList';
 import { useRouter } from 'next/navigation';
 
 export default function TombolaAdminPage() {
-  const [activeTab, setActiveTab] = useState<'qrcodes' | 'prizes' | 'drawing'>('qrcodes');
+  const [activeTab, setActiveTab] = useState<'qrcodes' | 'prizes' | 'drawing' | 'participants'>('qrcodes');
   const [username, setUsername] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function TombolaAdminPage() {
     <div className="min-h-screen flex flex-col bg-gray-50">
       <header className="bg-gray-800 text-white shadow sticky top-0 z-10 py-2.5">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center px-4 gap-3">
-          <div className="flex items-center">
+          <div className="flex items-center w-full sm:w-auto justify-between">
             <div className="flex items-center gap-3">
               <Link href="/">
                 <Image 
@@ -65,12 +66,30 @@ export default function TombolaAdminPage() {
                   Administration
                 </h1>
                 <p className="text-xs text-white/85 -mt-0.5">
-                  Gestion des documents
+                  Gestion de la tombola
                 </p>
               </div>
             </div>
+            
+            <div className="flex sm:hidden">
+              <Link
+                href="/admin"
+                className="text-white/80 hover:text-white text-sm font-medium mr-3"
+              >
+                Tableau de bord
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="bg-rose-600 text-white border border-rose-600 rounded-md py-1.5 px-2 text-sm font-medium inline-flex items-center justify-center transition-all duration-200 hover:bg-rose-700 hover:shadow focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </button>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-3 items-center justify-center">
+          
+          <div className="hidden sm:flex gap-3 items-center justify-center">
             <Link
               href="/admin"
               className="text-white/80 hover:text-white text-sm font-medium"
@@ -90,6 +109,12 @@ export default function TombolaAdminPage() {
               </svg>
             </button>
           </div>
+          
+          <div className="sm:hidden w-full flex justify-center mt-1">
+            <span className="text-xs text-white/80 text-center">
+              Connecté en tant que <span className="font-semibold">{username}</span>
+            </span>
+          </div>
         </div>
       </header>
       
@@ -107,11 +132,11 @@ export default function TombolaAdminPage() {
             </div>
             
             <div className="border-b border-gray-200">
-              <nav className="-mb-px flex" aria-label="Tabs">
+              <nav className="-mb-px flex flex-wrap overflow-x-auto" aria-label="Tabs">
                 <button
                   onClick={() => setActiveTab('qrcodes')}
                   className={`
-                    w-1/3 py-4 px-3 text-center border-b-2 
+                    flex-grow sm:flex-grow-0 sm:w-1/4 py-4 px-2 sm:px-3 text-center border-b-2 text-sm sm:text-base whitespace-nowrap
                     ${activeTab === 'qrcodes'
                       ? 'border-rose-500 text-rose-600 font-medium'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
@@ -122,7 +147,7 @@ export default function TombolaAdminPage() {
                 <button
                   onClick={() => setActiveTab('prizes')}
                   className={`
-                    w-1/3 py-4 px-3 text-center border-b-2 
+                    flex-grow sm:flex-grow-0 sm:w-1/4 py-4 px-2 sm:px-3 text-center border-b-2 text-sm sm:text-base whitespace-nowrap
                     ${activeTab === 'prizes'
                       ? 'border-rose-500 text-rose-600 font-medium'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
@@ -133,13 +158,24 @@ export default function TombolaAdminPage() {
                 <button
                   onClick={() => setActiveTab('drawing')}
                   className={`
-                    w-1/3 py-4 px-3 text-center border-b-2 
+                    flex-grow sm:flex-grow-0 sm:w-1/4 py-4 px-2 sm:px-3 text-center border-b-2 text-sm sm:text-base whitespace-nowrap
                     ${activeTab === 'drawing'
                       ? 'border-rose-500 text-rose-600 font-medium'
                       : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
                   `}
                 >
                   Tirage au Sort
+                </button>
+                <button
+                  onClick={() => setActiveTab('participants')}
+                  className={`
+                    flex-grow sm:flex-grow-0 sm:w-1/4 py-4 px-2 sm:px-3 text-center border-b-2 text-sm sm:text-base whitespace-nowrap
+                    ${activeTab === 'participants'
+                      ? 'border-rose-500 text-rose-600 font-medium'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
+                  `}
+                >
+                  Participants
                 </button>
               </nav>
             </div>
@@ -150,6 +186,8 @@ export default function TombolaAdminPage() {
               {activeTab === 'prizes' && <PrizeManager />}
               
               {activeTab === 'drawing' && <DrawingManager />}
+              
+              {activeTab === 'participants' && <ParticipantsList />}
             </div>
           </div>
         </div>

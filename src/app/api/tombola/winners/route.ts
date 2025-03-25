@@ -64,6 +64,11 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    const updatedPrize = await prisma.prize.update({
+      where: { id: prizeId },
+      data: { quantity: { decrement: 1 } }
+    });
+
     return NextResponse.json(winner, { status: 201 });
   } catch (error) {
     console.error('Erreur lors de la création du gagnant:', error);

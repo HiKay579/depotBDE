@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export default function QRCodeGenerator() {
   const [qrCodes, setQrCodes] = useState<{ id: string; url: string }[]>([]);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState<number>();
   const [isGenerating, setIsGenerating] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -264,10 +264,9 @@ export default function QRCodeGenerator() {
             Nombre de QR codes à générer :
           </label>
           <input
-            type="number"
+            type="text"
             id="quantity"
-            min="1"
-            max="100"
+            placeholder="1"
             value={quantity}
             onChange={(e) => setQuantity(Math.min(100, Math.max(1, parseInt(e.target.value) || 1)))}
             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
