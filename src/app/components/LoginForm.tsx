@@ -29,8 +29,8 @@ export default function LoginForm() {
         throw new Error(data.message || 'Échec de la connexion');
       }
 
-      // Redirection vers la page des fichiers après connexion réussie
-      router.push('/files');
+      // Redirection vers la page d'administration après connexion réussie
+      router.push('/admin');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {

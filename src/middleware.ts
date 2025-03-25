@@ -1,41 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Routes qui nécessitent une authentification
-const PROTECTED_ROUTES = ['/files'];
+// Routes protégées qui nécessitent une authentification
+const PROTECTED_ROUTES = [
+  '/api/files',
+  '/admin',
+];
 
-export default function middleware(request: NextRequest) {
-  // Vérifier si l'utilisateur accède à une route protégée
+export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const isProtectedRoute = PROTECTED_ROUTES.some((route) => 
-    pathname === route || pathname.startsWith(`${route}/`)
-  );
 
-  // Si ce n'est pas une route protégée, continuer normalement
-  if (!isProtectedRoute) {
-    return NextResponse.next();
+  // Vérifier si le chemin d'accès correspond à une route protégée
+  const isProtectedRoute = PROTECTED_ROUTES.some(route => pathname.startsWith(route));
+
+  if (isProtectedRoute) {
+    // Récupérer le token d'authentification du cookie
+    const authToken = request.cookies.get('auth_token')?.value;
+
+    // Si aucun token n'est présent, rediriger vers la page de connexion
+    if (!authToken) {
+      const url = new URL('/login', request.url);
+      url.searchParams.set('redirect', pathname);
+      
+      return NextResponse.redirect(url);
+    }
   }
 
-  // Vérifier si l'utilisateur est authentifié via le cookie de session
-  const authCookie = request.cookies.get('auth_token');
-  
-  // Si pas de cookie d'authentification, rediriger vers la page de connexion
-  if (!authCookie) {
-    const url = new URL('/login', request.url);
-    url.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(url);
-  }
-
-  // Si l'utilisateur est authentifié, continuer normalement
   return NextResponse.next();
 }
 
-// Configuration des routes sur lesquelles le middleware doit être exécuté
+// Configure le middleware pour s'exécuter sur les routes spécifiées
 export const config = {
   matcher: [
-    // Protéger les routes sensibles
-    '/files',
-    '/files/:path*',
-    // Ne pas protéger les routes API d'authentification
-    '/((?!api/auth).*)' 
-  ],
+    '/api/files/:path*',
+    '/admin/:path*',
+  ]
 }; 

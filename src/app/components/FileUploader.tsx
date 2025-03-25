@@ -86,9 +86,9 @@ export default function FileUploader() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full max-w-full sm:max-w-2xl mx-auto">
       <div 
-        className="border-2 border-dashed border-gray-300 rounded-lg p-8 bg-white
+        className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-8 bg-white
           flex flex-col items-center justify-center cursor-pointer 
           hover:border-rose-600 hover:bg-rose-50/10 transition-all duration-200
           transform hover:-translate-y-0.5 group"
@@ -99,7 +99,7 @@ export default function FileUploader() {
         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-rose-50 group-hover:bg-rose-100 transition-colors mb-4">
           <svg 
             xmlns="http://www.w3.org/2000/svg" 
-            className="h-6 w-6 text-rose-600" 
+            className="h-5 w-5 text-rose-600" 
             fill="none" 
             viewBox="0 0 24 24" 
             stroke="currentColor"
@@ -112,10 +112,10 @@ export default function FileUploader() {
             />
           </svg>
         </div>
-        <p className="mb-2 text-base text-gray-800 font-medium">
+        <p className="mb-2 text-sm sm:text-base text-gray-800 font-medium text-center">
           <span className="font-semibold text-rose-600">Cliquez pour télécharger</span> ou glissez-déposez
         </p>
-        <p className="text-sm text-gray-500">
+        <p className="text-xs sm:text-sm text-gray-500 text-center">
           Tous types de fichiers acceptés (max 100MB)
         </p>
         <input 
@@ -127,25 +127,25 @@ export default function FileUploader() {
       </div>
 
       {file && (
-        <div className="mt-6 bg-white rounded-lg p-5 border border-gray-200 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow">
+        <div className="mt-4 sm:mt-6 bg-white rounded-lg p-4 sm:p-5 border border-gray-200 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow">
           <div className="flex items-center">
-            <div className="flex-shrink-0 mr-4">
+            <div className="flex-shrink-0 mr-3 sm:mr-4">
               {file.type.includes('image') ? (
-                <div className="w-12 h-12 bg-rose-50 rounded-md flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-rose-50 rounded-md flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 sm:h-6 w-5 sm:w-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                 </div>
               ) : (
-                <div className="w-12 h-12 bg-rose-50 rounded-md flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-rose-50 rounded-md flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 sm:h-6 w-5 sm:w-6 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-base font-medium text-gray-800 truncate">
+              <p className="text-sm sm:text-base font-medium text-gray-800 truncate">
                 {file.name}
               </p>
               <p className="text-xs text-gray-500">
@@ -176,7 +176,7 @@ export default function FileUploader() {
               uploadFile();
             }}
             disabled={uploading}
-            className="mt-5 w-full bg-rose-600 text-white py-2.5 px-4 rounded-md font-medium flex items-center justify-center transition-all hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className="mt-4 sm:mt-5 w-full bg-rose-600 text-white py-2 sm:py-2.5 px-4 rounded-md font-medium flex items-center justify-center transition-all hover:bg-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
             {uploading ? (
               <>
@@ -190,7 +190,7 @@ export default function FileUploader() {
               <>
                 <svg 
                   xmlns="http://www.w3.org/2000/svg" 
-                  className="h-5 w-5 mr-2" 
+                  className="h-4 sm:h-5 w-4 sm:w-5 mr-2" 
                   fill="none" 
                   viewBox="0 0 24 24" 
                   stroke="currentColor"

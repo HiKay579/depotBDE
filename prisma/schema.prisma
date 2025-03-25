@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+        
+
+// Modèle pour les QR codes de la tombola
+model QRCode {
+  id              String          @id @default(uuid())
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  isUsed          Boolean         @default(false)
+  usedAt          DateTime?
+  participant     Participant?
+}
+
+// Modèle pour les participants à la tombola
+model Participant {
+  id              String          @id @default(uuid())
+  firstName       String
+  lastName        String
+  email           String
+  phoneNumber     String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  qrCode          QRCode          @relation(fields: [qrCodeId], references: [id])
+  qrCodeId        String          @unique
+  winner          Winner?
+}
+
+// Modèle pour les lots de la tombola
+model Prize {
+  id              String          @id @default(uuid())
+  name            String
+  description     String?
+  quantity        Int             @default(1)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  winners         Winner[]
+}
+
+// Modèle pour les gagnants de la tombola
+model Winner {
+  id              String          @id @default(uuid())
+  participantId   String          @unique
+  participant     Participant     @relation(fields: [participantId], references: [id])
+  prizeId         String
+  prize           Prize           @relation(fields: [prizeId], references: [id])
+  createdAt       DateTime        @default(now())
+}
