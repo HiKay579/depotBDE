@@ -11,9 +11,16 @@ function LoginFormContent() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [redirectPath, setRedirectPath] = useState('/admin');
 
-  // Récupérer l'URL de redirection si disponible
-  const redirect = searchParams.get('redirect') || '/admin';
+  // Récupérer l'URL de redirection depuis searchParams
+  useEffect(() => {
+    // Utilisons un useEffect pour extraire le paramètre redirect en toute sécurité
+    const redirectParam = searchParams.get('redirect');
+    if (redirectParam) {
+      setRedirectPath(redirectParam);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,11 +43,13 @@ function LoginFormContent() {
         throw new Error(data.message || 'Échec de la connexion');
       }
 
-      // Redirection vers la page demandée ou admin par défaut
-      router.push(redirect);
+      // Attendre un court instant pour que le cookie soit correctement défini
+      setTimeout(() => {
+        // Redirection vers la page demandée ou admin par défaut
+        router.push(redirectPath);
+      }, 300);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
-    } finally {
       setLoading(false);
     }
   };
